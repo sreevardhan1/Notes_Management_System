@@ -1,0 +1,6 @@
+Flask>=2.1
+mysql-connector-python
+python-dotenv
+Flask-Mail
+itsdangerous
+Werkzeug
