@@ -1,0 +1,175 @@
+{% extends 'main.html' %}
+{% block title %} Edit Notes - Flash Notes {% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+        <h4 class="mb-4 fw-semibold">
+          <i class="fa-solid fa-pen-to-square me-2 text-warning"></i>Edit Note
+        </h4>
+
+        <form action="" method="POST" enctype="multipart/form-data" id="updateForm">
+          <!-- Title -->
+          <div class="mb-3">
+            <label for="title" class="form-label fw-semibold">Title</label>
+            <input
+              type="text"
+              id="title"
+              name="title"
+              class="form-control"
+              value="{{ note.title }}"
+              required
+            />
+          </div>
+
+          <!-- Content -->
+          <div class="mb-3">
+            <label for="content" class="form-label fw-semibold">Content</label>
+            <textarea
+              id="content"
+              name="content"
+              rows="6"
+              class="form-control"
+              maxlength="5000"
+              required
+            >{{ note.content }}</textarea>
+            <small class="text-muted"><span id="charCount">0</span> / 5000 characters</small>
+          </div>
+
+          <!-- Existing Attachments -->
+          {% if note.attachments %}
+            <div class="mb-3">
+              <label class="form-label fw-semibold">
+                <i class="fa-solid fa-paperclip"></i> Existing Attachments
+              </label>
+              <div class="attachment-grid">
+                {% for file in note.attachments.split(',') %}
+                  {% set ext = file.split('.')[-1].lower() %}
+                  <div class="attachment-item">
+                    {% if ext in ['jpg','jpeg','png','gif'] %}
+                      <img src="{{ url_for('static', filename='uploads/' ~ file) }}" alt="{{ file }}" class="img-fluid rounded shadow-sm">
+                    {% elif ext in ['mp4','webm'] %}
+                      <video controls class="w-100 rounded shadow-sm">
+                        <source src="{{ url_for('static', filename='uploads/' ~ file) }}" type="video/{{ ext }}">
+                      </video>
+                    {% elif ext in ['mp3','wav','m4a'] %}
+                      <audio controls class="w-100">
+                        <source src="{{ url_for('static', filename='uploads/' ~ file) }}" type="audio/{{ ext }}">
+                      </audio>
+                    {% elif ext == 'pdf' %}
+                      <iframe src="{{ url_for('static', filename='uploads/' ~ file) }}" class="w-100 rounded border" height="200"></iframe>
+                    {% else %}
+                      <a href="{{ url_for('static', filename='uploads/' ~ file) }}" target="_blank" class="btn btn-outline-secondary btn-sm w-100 mt-2">
+                        <i class="fa-solid fa-file"></i> {{ file }}
+                      </a>
+                    {% endif %}
+                    <!-- Delete checkbox -->
+                    <div class="form-check mt-2 text-start">
+                      <input class="form-check-input" type="checkbox" name="delete_files" value="{{ file }}" id="delete_{{ loop.index }}">
+                      <label class="form-check-label small text-muted" for="delete_{{ loop.index }}">
+                        Remove this file
+                      </label>
+                    </div>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          {% endif %}
+
+          <!-- Add New Attachments -->
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Add New Attachments</label>
+            <input type="file" name="attachments" multiple
+                   accept=".jpg,.jpeg,.png,.pdf,.mp4,.mp3,.m4a"
+                   class="form-control">
+            <small class="text-muted">You can attach new images, PDFs, videos, or audio files.</small>
+          </div>
+
+          <!-- Buttons -->
+          <div class="d-flex justify-content-start gap-2 mt-4">
+            <button class="btn btn-warning fw-semibold" type="submit">
+              <i class="fa-solid fa-rotate"></i> Update
+            </button>
+            <a href="{{ url_for('view_all') }}" class="btn btn-secondary fw-semibold">
+              <i class="fa-solid fa-arrow-left"></i> Cancel
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Character Counter -->
+<script>
+  const contentArea = document.getElementById('content');
+  const charCount = document.getElementById('charCount');
+  contentArea.addEventListener('input', () => {
+    charCount.textContent = contentArea.value.length;
+  });
+  charCount.textContent = contentArea.value.length;
+</script>
+
+<!-- Styling -->
+<style>
+.card {
+  border-radius: 12px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 0 15px rgba(0,0,0,0.08);
+}
+
+/* Attachments grid */
+.attachment-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 15px;
+}
+
+.attachment-item {
+  background: var(--bg);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 10px;
+  padding: 10px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.attachment-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(13, 110, 253, 0.25);
+}
+
+[data-theme="dark"] .attachment-item {
+  background: #1c1c1c;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+small.text-muted { color: var(--muted) !important; }
+
+input:focus, textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.3);
+}
+
+.btn-warning {
+  background-color: #ffc107;
+  border: none;
+  transition: all 0.2s ease;
+}
+.btn-warning:hover {
+  background-color: #ffb300;
+  transform: translateY(-1px);
+}
+.btn-secondary:hover {
+  background-color: #5c636a;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 768px) {
+  .attachment-grid { grid-template-columns: 1fr; }
+}
+</style>
+
+{% endblock %}

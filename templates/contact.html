@@ -1,0 +1,19 @@
+{% extends 'main.html' %}
+{% block title %}Contact - Flash Notes{% endblock %}
+{% block content %}
+<section class="contact-section">
+  <h2>Contact Us</h2>
+  <form action="#" method="POST">
+    <label for="name">Your Name</label>
+    <input type="text" id="name" name="name" placeholder="Enter your name" required>
+
+    <label for="email">Your Email</label>
+    <input type="email" id="email" name="email" placeholder="Enter your email" required>
+
+    <label for="message">Message</label>
+    <textarea id="message" name="message" rows="4" placeholder="Type your message..." required></textarea>
+
+    <button type="submit"><i class="fa-solid fa-paper-plane"></i> Send Message</button>
+  </form>
+</section>
+{% endblock %}

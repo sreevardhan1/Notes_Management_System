@@ -1,0 +1,527 @@
+/* =======================================================
+   FLASH NOTES - Final Style.css (Production Ready)
+   -------------------------------------------------------
+   • Responsive Layout
+   • Dark/Light Theme
+   • Waveform Animation
+   • Subtle Glow & Transitions
+   • Optimized for UX & Performance
+   ======================================================= */
+
+/* ======== THEME VARIABLES ======== */
+:root {
+  --bg: #f8f9fa;
+  --card: #ffffff;
+  --text: #212529;
+  --muted: #6c757d;
+  --primary: #0d6efd;
+  --nav-bg: #212529;
+  --nav-text: #f2f4f7;
+  --footer-bg: #212529;
+  --footer-text: #f8f9fa;
+}
+
+[data-theme="dark"] {
+  --bg: #121212;
+  --card: #1f1f1f;
+  --text: #e9ecef;
+  --muted: #bfc2c6;
+  --primary: #66b2ff;
+  --nav-bg: #0b0b0b;
+  --nav-text: #e9ecef;
+  --footer-bg: #0b0b0b;
+  --footer-text: #dfe7f3;
+}
+
+/* ======== GLOBAL RESETS ======== */
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Poppins", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.4s, color 0.4s;
+}
+
+/* Fade-in page load */
+body {
+  animation: fadeInBody 0.6s ease-in-out;
+}
+@keyframes fadeInBody {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ======== NAVBAR ======== */
+.navbar {
+  background: var(--nav-bg) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  transition: background 0.4s ease;
+}
+
+.navbar .nav-link,
+.navbar-brand {
+  color: var(--nav-text) !important;
+}
+
+.navbar .nav-link:hover i,
+.navbar .nav-link:hover {
+  color: var(--primary) !important;
+  transform: scale(1.05);
+  transition: 0.3s;
+}
+
+.navbar-toggler-icon {
+  background-image: url("data:image/svg+xml;charset=utf8,%3Csvg viewBox='0 0 30 30' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath stroke='rgba(255,255,255,0.9)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
+}
+.navbar-toggler-icon:hover { opacity: 0.8; }
+
+/* ======== BRAND & LOGO ======== */
+.navbar-brand img {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.navbar-brand img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.5);
+}
+
+/* ======== CONTAINERS & CARDS ======== */
+.container { max-width: 1100px; }
+
+.card {
+  background: var(--card);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+.card:hover {
+  border-color: var(--primary);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+}
+.card p, .card label { color: var(--text); }
+.card-text { overflow-wrap: break-word; }
+
+/* ======== BUTTONS ======== */
+.btn {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+.btn-primary {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+.btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+}
+
+/* ======== FLASH MESSAGES ======== */
+.alert {
+  animation: fadeIn 0.5s ease;
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid var(--primary);
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: none; }
+}
+.flash-message::after { display: none; }
+
+/* ======== DARK MODE STYLING ======== */
+[data-theme="dark"] .card {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
+}
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] .card-title {
+  color: #ffffff !important;
+}
+[data-theme="dark"] .btn-primary {
+  background-color: #4a90e2;
+  border-color: #4a90e2;
+}
+[data-theme="dark"] .btn-primary:hover {
+  background-color: #5aa1f2;
+  border-color: #5aa1f2;
+}
+[data-theme="dark"] .navbar {
+  background: linear-gradient(90deg, #0d0d0d 0%, #1c1c1c 50%, #0d0d0d 100%) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 2px 10px rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] footer {
+  background: linear-gradient(90deg, #0d0d0d 0%, #1a1a1a 50%, #0d0d0d 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  color: #eaeaea;
+}
+[data-theme="dark"] footer p { color: #d8d8d8; }
+
+/* ======== LOGIN PAGE LOGO ======== */
+.login-logo {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+  animation: logoPop 0.6s ease-in-out;
+}
+@keyframes logoPop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ======== NOTE OPTIONS (WRITE / RECORD) ======== */
+.note-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 1rem;
+}
+.note-btn {
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 10px 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease-in-out;
+}
+.note-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+}
+
+/* Recording pulse animation */
+#recBtn.recording {
+  background-color: #28a745;
+  color: white;
+  animation: micPulse 1.2s infinite;
+  box-shadow: 0 0 15px rgba(52, 235, 122, 0.6);
+}
+@keyframes micPulse {
+  0%, 100% { box-shadow: 0 0 10px rgba(52, 235, 122, 0.3); transform: scale(1); }
+  50% { box-shadow: 0 0 25px rgba(52, 235, 122, 0.7); transform: scale(1.07); }
+}
+
+/* Waveform animation */
+.waveform {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+.waveform div {
+  width: 6px;
+  height: 20px;
+  background: #34eb7a;
+  border-radius: 3px;
+  animation: waveAnim 1s infinite ease-in-out;
+}
+.waveform div:nth-child(1){animation-delay:0s;}
+.waveform div:nth-child(2){animation-delay:0.1s;}
+.waveform div:nth-child(3){animation-delay:0.2s;}
+.waveform div:nth-child(4){animation-delay:0.3s;}
+.waveform div:nth-child(5){animation-delay:0.4s;}
+@keyframes waveAnim {
+  0%,100%{transform:scaleY(0.5);opacity:0.5;}
+  50%{transform:scaleY(1.5);opacity:1;}
+}
+[data-theme="dark"] .waveform div { background: #4fff96; }
+
+/* ======== ABOUT / CONTACT ======== */
+.about-section, .contact-section {
+  max-width: 900px;
+  margin: 60px auto;
+  background: var(--card);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+  position: relative;
+  animation: fadeInUp 0.6s ease;
+}
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: none; }
+}
+.about-section:hover, .contact-section:hover { transform: translateY(-5px); }
+
+/* Contact Form */
+.contact-section form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.contact-section input,
+.contact-section textarea {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 1rem;
+  transition: 0.2s;
+}
+.contact-section input:focus,
+.contact-section textarea:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.3);
+  outline: none;
+}
+
+/* ======== RESPONSIVE FIXES ======== */
+@media (max-width: 768px) {
+  .container { padding-left: 12px; padding-right: 12px; }
+  .note-btn { padding: 8px 14px; font-size: 0.9rem; }
+}
+@media (max-width: 480px) {
+  .waveform div { width: 4px; height: 16px; }
+  .navbar-brand span { font-size: 0.9rem; }
+}
+
+
+/* ======== SEARCH BAR ======== */
+.navbar form {
+  display: flex;
+  align-items: center;
+}
+.navbar input[type="search"] {
+  border-radius: 50px;
+  padding: 6px 12px;
+  background: var(--card);
+  color: var(--text);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: 0.3s;
+}
+.navbar input[type="search"]:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 6px rgba(13, 110, 253, 0.4);
+  outline: none;
+}
+.navbar .btn-outline-light i {
+  font-size: 14px;
+}
+[data-theme="dark"] .navbar input[type="search"] {
+  background: #1c1c1c;
+  color: #fff;
+  border-color: rgba(255,255,255,0.2);
+}
+
+
+/* navbar search input appearance */
+.navbar form input[type="search"] {
+  border-radius: 30px;
+  padding: 6px 12px;
+  width: 220px;
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--text);
+}
+[data-theme="dark"] .navbar form input[type="search"] {
+  background: #1c1c1c;
+  color: #fff;
+}
+
+/* Login/Register footers */
+.login-page-footer {
+  margin-top: 12px;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+
+.note-options {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.note-btn {
+  font-weight: 600;
+  border-radius: 50px;
+  padding: 10px 20px;
+  transition: all 0.3s ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.note-btn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.4);
+}
+
+/* Waveform animation */
+.waveform {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+.waveform div {
+  width: 6px;
+  height: 20px;
+  background: #34eb7a;
+  border-radius: 3px;
+  animation: waveAnim 1s infinite ease-in-out;
+}
+@keyframes waveAnim {
+  0%,100% { transform: scaleY(0.5); opacity:0.5; }
+  50% { transform: scaleY(1.5); opacity:1; }
+}
+
+
+
+
+.attachments img, .attachments video, .attachments iframe {
+  border-radius: 10px;
+  margin-bottom: 10px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.attachments img:hover, .attachments video:hover, .attachments iframe:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 10px rgba(13, 110, 253, 0.3);
+}
+[data-theme="dark"] .attachments img,
+[data-theme="dark"] .attachments video,
+[data-theme="dark"] .attachments iframe {
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.1);
+}
+
+/* Dark mode form placeholder fix */
+[data-theme="dark"] input::placeholder,
+[data-theme="dark"] textarea::placeholder {
+    color: #e9ecef !important;
+    opacity: 0.9;
+}
+
+/* Search placeholder dark mode fix */
+[data-theme="dark"] .form-control::placeholder {
+    color: #e9ecef !important;
+}
+
+/* Auth bottom text visibility */
+[data-theme="dark"] .auth-note {
+    color: #ffffff !important;
+}
+
+
+/* Stop button red pulse */
+#stopBtn {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+}
+
+#stopBtn:hover {
+  background-color: #b02a37;
+  transform: scale(1.05);
+}
+
+/* Waveform bars animation */
+.waveform {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50px;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.waveform div {
+  width: 6px;
+  height: 20px;
+  background: #34eb7a;
+  border-radius: 3px;
+}
+
+@keyframes waveAnim {
+  0%, 100% { transform: scaleY(0.5); opacity: 0.5; }
+  50% { transform: scaleY(1.5); opacity: 1; }
+}
+
+
+/* Smooth page transitions */
+.fade-in {
+  animation: fadeIn 0.4s ease-in;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Apply to cards */
+.card {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* Hover effects for note cards */
+.card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="dark"] .card:hover {
+  box-shadow: 0 8px 24px rgba(255, 255, 255, 0.1);
+}
+
+
+/* Mobile improvements */
+@media (max-width: 768px) {
+  .navbar-brand span { font-size: 1rem; }
+  
+  .note-options {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .note-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .card-body {
+    padding: 1rem !important;
+  }
+  
+  h3, h4 {
+    font-size: 1.3rem;
+  }
+  
+  /* Stack buttons vertically on mobile */
+  .card .btn {
+    display: block;
+    width: 100%;
+    margin-bottom: 5px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+  
+  .navbar form input[type="search"] {
+    width: 150px;
+  }
+} 

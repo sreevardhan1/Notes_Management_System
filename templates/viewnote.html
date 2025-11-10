@@ -1,0 +1,110 @@
+{% extends 'main.html' %}
+{% block title %}All Notes - Flash Notes{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
+  <h3 class="fw-semibold mb-0"><i class="fa-solid fa-note-sticky me-2 text-primary"></i>Your Notes</h3>
+
+  <!-- 🔍 Search Bar -->
+  <form class="d-flex" action="{{ url_for('search_notes') }}" method="get">
+    <input class="form-control me-2 search-input" type="search" name="q" placeholder="Search notes..." aria-label="Search" value="{{ search_term or '' }}">
+    <button class="btn btn-outline-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+  </form>
+</div>
+
+{% if search_term %}
+  <p class="text-muted">Showing results for: <strong>{{ search_term }}</strong></p>
+{% endif %}
+
+<div class="row">
+  {% if notes %}
+    {% for note in notes %}
+      <div class="col-md-6 col-lg-4 mb-4">
+        <div class="card note-card h-100 shadow-sm border-0">
+          <div class="card-body d-flex flex-column">
+            <h5 class="card-title text-truncate fw-semibold">{{ note.title }}</h5>
+            <p class="card-text text-muted flex-grow-1">{{ note.content[:120] }}{% if note.content|length > 120 %}...{% endif %}</p>
+            <small class="text-muted mb-2"><i class="fa-regular fa-clock me-1"></i> {{ note.create_at }}</small>
+
+            <div class="mt-auto d-flex justify-content-between">
+              <a class="btn btn-sm btn-outline-primary" href="{{ url_for('single_note', note_id=note.id) }}">
+                <i class="fa-solid fa-eye"></i>
+              </a>
+              <a class="btn btn-sm btn-outline-warning" href="{{ url_for('edit_note', note_id=note.id) }}">
+                <i class="fa-solid fa-pen-to-square"></i>
+              </a>
+
+              <form action="{{ url_for('delete_note', note_id=note.id) }}" method="POST" class="d-inline delete-form">
+                <button class="btn btn-sm btn-outline-danger" type="button" data-note-title="{{ note.title }}">
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <p class="text-muted">No notes yet. <a href="{{ url_for('add_note') }}">Create your first note</a>.</p>
+  {% endif %}
+</div>
+
+<!-- JS: Delete Confirmation -->
+<script>
+  document.querySelectorAll('.delete-form button').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const title = this.dataset.noteTitle;
+      if (confirm(`Are you sure you want to delete "${title}"?\nThis action cannot be undone.`)) {
+        this.closest('form').submit();
+      }
+    });
+  });
+</script>
+
+<!-- Inline Styling -->
+<style>
+.search-input {
+  border-radius: 30px;
+  padding: 8px 16px;
+}
+
+.note-card {
+  background: var(--card);
+  border: 1px solid rgba(0,0,0,0.05);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.note-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
+}
+
+.note-card .btn {
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .note-card {
+  background: #1f1f1f;
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 12px rgba(255,255,255,0.05);
+}
+
+[data-theme="dark"] .text-muted {
+  color: #b0b3b8 !important;
+}
+
+[data-theme="dark"] .search-input {
+  background: #2a2a2a;
+  color: #f2f2f2;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+</style>
+
+{% endblock %}

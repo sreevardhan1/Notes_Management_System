@@ -1,0 +1,134 @@
+{% extends 'main.html' %}
+{% block title %}View Note - Flash Notes{% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4">
+
+        <!-- 📝 Note Title & Content -->
+        <h3 class="fw-semibold mb-3">{{ note.title }}</h3>
+        <p class="mt-3" style="white-space: pre-wrap;">{{ note.content }}</p>
+
+        <!-- 📎 Attachments Section -->
+        {% if note.attachments %}
+          <hr>
+          <h6 class="mb-3">
+            <i class="fa-solid fa-paperclip"></i> Attachments
+          </h6>
+
+          <div class="attachments d-flex flex-column gap-3">
+            {% for file in note.attachments.split(',') %}
+              {% set ext = file.split('.')[-1].lower() %}
+              
+              {% if ext in ['jpg','jpeg','png','gif','bmp'] %}
+                <!-- 🖼️ Image -->
+                <div class="attachment-item text-center">
+                  <img src="{{ url_for('static', filename='uploads/' ~ file) }}" 
+                       alt="{{ file }}" class="img-fluid rounded shadow-sm">
+                  <p class="small text-muted mt-1">{{ file }}</p>
+                </div>
+
+              {% elif ext in ['mp4','webm','ogg'] %}
+                <!-- 🎥 Video -->
+                <div class="attachment-item">
+                  <video controls class="w-100 rounded shadow-sm">
+                    <source src="{{ url_for('static', filename='uploads/' ~ file) }}" type="video/{{ ext }}">
+                    Your browser does not support video playback.
+                  </video>
+                  <p class="small text-muted mt-1">{{ file }}</p>
+                </div>
+
+              {% elif ext in ['mp3','wav','m4a','webm'] %}
+                <!-- 🎧 Audio -->
+                <div class="attachment-item">
+                  <audio controls class="w-100">
+                    <source src="{{ url_for('static', filename='uploads/' ~ file) }}" type="audio/{{ ext }}">
+                    Your browser does not support audio playback.
+                  </audio>
+                  <p class="small text-muted mt-1">{{ file }}</p>
+                </div>
+
+              {% elif ext == 'pdf' %}
+                <!-- 📄 PDF -->
+                <div class="attachment-item">
+                  <iframe src="{{ url_for('static', filename='uploads/' ~ file) }}" 
+                          class="w-100 rounded border shadow-sm" height="400"></iframe>
+                  <p class="small text-muted mt-1">{{ file }}</p>
+                </div>
+
+              {% else %}
+                <!-- 📁 Generic File -->
+                <div class="attachment-item">
+                  <a href="{{ url_for('static', filename='uploads/' ~ file) }}" 
+                     target="_blank" class="btn btn-outline-secondary btn-sm">
+                    <i class="fa-solid fa-file"></i> {{ file }}
+                  </a>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <hr>
+        <p class="text-muted small mb-0">
+          <i class="fa-regular fa-clock"></i> Created on: {{ note.create_at }}
+        </p>
+
+        <div class="mt-3">
+          <a href="{{ url_for('view_all') }}" class="btn btn-outline-primary btn-sm">
+            <i class="fa-solid fa-arrow-left"></i> Back
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+/* 🎨 Custom Styling for Note View Page */
+
+.card {
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--text);
+  box-shadow: 0 0 12px rgba(0,0,0,0.1);
+}
+
+.attachment-item {
+  background: var(--bg);
+  border-radius: 8px;
+  padding: 8px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.attachment-item:hover {
+  transform: scale(1.01);
+  box-shadow: 0 0 10px rgba(0,123,255,0.2);
+}
+
+.attachments img,
+.attachments video,
+.attachments iframe {
+  border-radius: 10px;
+  box-shadow: 0 0 8px rgba(0,0,0,0.1);
+}
+
+.text-muted {
+  color: var(--muted) !important;
+}
+
+/* Dark mode compatibility */
+[data-theme="dark"] .attachment-item {
+  background: #1c1c1c;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+[data-theme="dark"] .attachments img,
+[data-theme="dark"] .attachments video,
+[data-theme="dark"] .attachments iframe {
+  box-shadow: 0 0 8px rgba(255,255,255,0.1);
+}
+</style>
+
+{% endblock %}

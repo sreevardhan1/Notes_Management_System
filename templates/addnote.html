@@ -1,0 +1,170 @@
+{% extends 'main.html' %}
+{% block title %} Add Notes - Flash Notes {% endblock %}
+{% block content %}
+
+<div class="row justify-content-center">
+  <div class="col-md-8 col-lg-7">
+    <div class="card shadow-sm">
+      <div class="card-body p-4 text-center">
+        <h4 class="mb-4">Create a New Note</h4>
+
+        <!-- Step 1: Choose Option -->
+        <div id="noteOptions" class="note-options mb-4">
+          <button id="writeBtn" class="btn btn-outline-primary note-btn">
+            <i class="fa-solid fa-pen-nib"></i> Write Note
+          </button>
+          <button id="recBtn" class="btn btn-outline-success note-btn">
+            <i class="fa-solid fa-microphone"></i> Record Note
+          </button>
+        </div>
+
+        <!-- Step 2: Hidden Note Form -->
+        <form id="noteForm" action="{{ url_for('add_note') }}" method="POST" enctype="multipart/form-data" class="d-none">
+          <div class="mb-3 text-start">
+            <label class="form-label">Title</label>
+            <input type="text" name="title" id="noteTitle" class="form-control" required>
+          </div>
+          <div class="mb-3 text-start">
+            <label class="form-label">Content</label>
+            <textarea name="content" id="noteContent" rows="6" class="form-control"></textarea>
+            <small class="text-muted"><span id="charCount">0</span> / 5000 characters</small>
+          </div>
+
+          <!-- Waveform -->
+          <div id="recordIndicator" class="waveform d-none mb-3">
+            <div></div><div></div><div></div><div></div><div></div>
+          </div>
+
+          <!-- File Upload -->
+          <div class="mb-3 text-start">
+            <label class="form-label">Attach Files (optional)</label>
+            <input type="file" name="attachments" multiple accept=".jpg,.jpeg,.png,.pdf,.mp4,.mp3,.m4a,.webm" class="form-control">
+          </div>
+
+          <button class="btn btn-success w-100 mt-3" type="submit">Save Note</button>
+          <a href="{{ url_for('view_all') }}" class="btn btn-secondary w-100 mt-2">Cancel</a>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- JS: Note Options & Recording -->
+<script>
+const writeBtn = document.getElementById('writeBtn');
+const recBtn = document.getElementById('recBtn');
+const noteForm = document.getElementById('noteForm');
+const recordIndicator = document.getElementById('recordIndicator');
+const noteContent = document.getElementById('noteContent');
+const charCount = document.getElementById('charCount');
+
+let recognition, mediaRecorder;
+let audioChunks = [];
+let isRecording = false;
+let finalTranscript = "";
+
+// 🧩 Update character counter
+noteContent.addEventListener('input', () => {
+  charCount.textContent = noteContent.value.length;
+});
+
+// ✍️ Write Note mode
+writeBtn.addEventListener('click', () => {
+  noteForm.classList.remove('d-none');
+  recordIndicator.classList.add('d-none');
+});
+
+// 🎙️ Record Note mode
+recBtn.addEventListener('click', async () => {
+  noteForm.classList.remove('d-none');
+
+  // Stop recording
+  if (isRecording) {
+    if (recognition) recognition.stop();
+    if (mediaRecorder && mediaRecorder.state !== 'inactive') mediaRecorder.stop();
+
+    recBtn.innerHTML = '<i class="fa-solid fa-microphone"></i> Record Note';
+    recBtn.classList.remove('recording');
+    recordIndicator.classList.add('d-none');
+    isRecording = false;
+    return;
+  }
+
+  // Start recording
+  try {
+    // 🎧 Initialize speech recognition (if supported)
+    if (!('webkitSpeechRecognition' in window)) {
+      alert("Speech recognition not supported in this browser. Try Chrome.");
+      return;
+    }
+
+    recognition = new webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+
+    recognition.onstart = () => console.log("🎤 Voice recognition started...");
+    recognition.onerror = e => console.error("Recognition error:", e);
+
+    recognition.onresult = (event) => {
+      let interimTranscript = "";
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const result = event.results[i];
+        const text = result[0].transcript;
+
+        if (result.isFinal) {
+          finalTranscript += text.trim() + " ";
+        } else {
+          interimTranscript += text;
+        }
+      }
+      noteContent.value = (finalTranscript + interimTranscript).trim();
+      charCount.textContent = noteContent.value.length;
+    };
+
+    // 👂 If recognition stops (e.g., silence), restart automatically
+    recognition.onend = () => {
+      if (isRecording) recognition.start();
+    };
+
+    recognition.start();
+
+    // 🎤 Start audio recording (for saving audio file)
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+
+    mediaRecorder.ondataavailable = (e) => {
+      if (e.data.size > 0) audioChunks.push(e.data);
+    };
+
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const audioFile = new File([audioBlob], `recording_${Date.now()}.webm`, { type: 'audio/webm' });
+
+      const fileInput = document.querySelector('input[name="attachments"]');
+      const dataTransfer = new DataTransfer();
+      dataTransfer.items.add(audioFile);
+      fileInput.files = dataTransfer.files;
+
+      stream.getTracks().forEach(track => track.stop());
+      console.log("🎧 Recording saved!");
+    };
+
+    mediaRecorder.start();
+
+    // 🔄 UI updates
+    recBtn.innerHTML = '<i class="fa-solid fa-stop"></i> Stop Recording';
+    recBtn.classList.add('recording');
+    recordIndicator.classList.remove('d-none');
+    isRecording = true;
+
+  } catch (error) {
+    alert("🎤 Microphone access denied or unsupported.");
+    console.error(error);
+  }
+});
+</script>
+
+
+{% endblock %}

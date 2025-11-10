@@ -1,0 +1,35 @@
+{% extends "main.html" %}
+{% block title %} Register - Flash Notes {% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-5">
+    <div class="card p-4">
+      <div class="text-center mb-3">
+        <img src="{{ url_for('static', filename='images/Notes_logo.png') }}" alt="Logo" class="login-logo">
+      </div>
+
+      <h3 class="text-center mb-3">Create Account</h3>
+      <form method="POST" action="{{ url_for('register') }}">
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input class="form-control" id="email" name="email" type="email" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Username</label>
+          <input class="form-control" id="username" name="username" required>
+        </div>
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input class="form-control" id="password" name="password" type="password" required>
+        </div>
+        <button class="btn btn-success w-100" type="submit">Register</button>
+      </form>
+
+      <p class="text-center auth-note mt-2">Already have an account? 
+        <a href="{{ url_for('login') }}">Login</a>
+      </p>
+
+    </div>
+  </div>
+</div>
+{% endblock %}
