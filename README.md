@@ -1,4 +1,4 @@
-# 📝 Flash Notes - Smart Note Management System
+# 📝 Flash Notes - Note Management System
 
 A full-stack web application built with Flask and MySQL for creating, managing, and recording notes with audio support.
 
