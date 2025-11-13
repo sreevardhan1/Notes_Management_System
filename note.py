@@ -15,7 +15,7 @@ Author: Sreevardhan
 """
 
 # ---------- Imports ----------
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 import mysql.connector
@@ -25,6 +25,9 @@ from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from datetime import timedelta
 import os
+from captcha_utils import generate_captcha_image, generate_captcha_text
+# from otp_utils import generate_otp, save_otp, verify_otp, get_stored_otp
+
 
 # ---------- Configuration ----------
 load_dotenv()
@@ -82,22 +85,23 @@ def register():
         email = request.form.get('email', '').strip()
         username = request.form.get('username', '').strip()
         password = request.form.get('password', '').strip()
+        mobile = request.form.get('mobile','').strip()
 
-        if not all([email, username, password]):
+        if not all([email, username, password, mobile]):
             flash("Please fill all the fields", "warning")
             return redirect(url_for('register'))
 
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
-        cursor.execute("SELECT * FROM noteusers WHERE email=%s OR username=%s", (email, username))
+        cursor.execute("SELECT * FROM noteusers WHERE email=%s OR username=%s OR mobile = %s", (email, username,mobile))
         if cursor.fetchone():
             flash("User already exists", "danger")
             cursor.close(); db.close()
             return redirect(url_for('register'))
 
         hashed_pw = generate_password_hash(password)
-        cursor.execute("INSERT INTO noteusers (email, username, password) VALUES (%s, %s, %s)",
-                       (email, username, hashed_pw))
+        cursor.execute("INSERT INTO noteusers (email, username, password,mobile) VALUES (%s, %s, %s,%s)",
+                       (email, username, hashed_pw,mobile))
         db.commit()
         cursor.close(); db.close()
         flash("✅ Registration successful! Please login.", "success")
@@ -106,13 +110,123 @@ def register():
     return render_template('register.html')
 
 
+# ========== CAPTCHA ==========
+@app.route('/captcha')
+def captcha():
+    text = generate_captcha_text()
+    session['captcha_text'] = text
+    img_buf = generate_captcha_image(text)
+    return send_file(img_buf, mimetype='image/png')
+
+'''
+# ========== SEND & VALIDATE CAPTCHA ==========
+@app.route('/send_otp',methods=['POST'])
+def send_otp():
+    """
+    Expected POST form fields:
+      - mobile : phone number string (must match registered user)
+      - captcha : user-entered captcha text
+    """
+
+    mobile = request.form.get('mobile',"").strip()
+    user_captcha = request.form.get('captcha','').strip()
+
+    if not mobile:
+        flash("Please Enter your mobile number", 'warning')
+        return redirect(url_for('login'))
+    
+    # verify the captcha
+    real = session.get('captcha_text', '')
+    if not real or user_captcha.upper() != real.upper():
+        flash("Incorrect CAPTCHA. Try again.", "danger")
+        return redirect(url_for('login'))
+
+    # verifying user mobile number
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM noteusers WHERE mobile = %s", (mobile,))
+    user = cursor.fetchone()
+    cursor.close()
+    db.close()
+
+    if not user:
+        flash("Mobile Number not Registered", "danger")
+        return redirect(url_for('login'))
+    
+    # Generate and Save the OTP
+    otp = generate_otp()
+    save_otp(mobile, otp, validity_seconds=300)
+
+    session['otp_mobile'] = mobile
+
+    # send OTP via email if mail is configured (otherwise show flash for dev)
+    try:
+        if app.config.get('MAIL_USERNAME'):
+            # send to registered email (for dev convenience)
+            msg = Message("Your Flash Notes OTP", recipients=[user['email']])
+            msg.body = f"Your OTP is: {otp} (valid 5 minutes)."
+            mail.send(msg)
+            flash("OTP sent to your registered email address.", "info")
+        else:
+            # dev fallback: show OTP in flash (not for production)
+            flash(f"[DEV OTP] {otp}", "info")
+    except Exception as e:
+        flash(f"Failed to send OTP: {e}", "danger")
+        # still allow dev flow but it's safer to abort; choose to show dev OTP
+        flash(f"[DEV OTP] {otp}", "info")
+
+    # redirect to login page where user can enter OTP and verify
+    return redirect(url_for('login'))
+
+
+# OTP Verification Route
+@app.route('/verify_otp', methods=['POST'])
+def verify_otp_route():
+    mobile = request.form.get('mobile','').strip()
+    user_otp = request.form.get('otp','').strip()
+
+    if not mobile or not user_otp:
+        flash("Please provide mobile and OTP", "warning")
+        return redirect(url_for('login'))
+
+    if not verify_otp(mobile, user_otp):   # using verify_otp() from your OTP module
+        flash("Invalid or expired OTP.", "danger")
+        return redirect(url_for('login'))
+
+    
+    db = get_db_connection()
+    cursor = db.cursor(dictionary=True)
+    cursor.execute("SELECT * FROM noteusers WHERE mobile = %s", (mobile,))
+    user = cursor.fetchone()
+    cursor.close(); db.close()
+
+    if not user:
+        flash("User not found. Please register.", "danger")
+        return redirect(url_for('register'))
+
+    session['user_id'] = user['id']
+    session['username'] = user['username']
+    
+    flash("Logged in Successfully", "success")
+    return redirect(url_for('view_all'))
+'''       
+
+# ========== LOGIN & LOGOUT ==========
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     """Authenticate user and start session."""
     if request.method == 'POST':
         username = request.form['username'].strip()
         password = request.form['password'].strip()
+        user_captcha = request.form.get('captcha','').strip()
 
+        # Validate CAPTCHA
+        real_captcha = session.get('captcha_text','')
+        if not real_captcha or user_captcha.lower() != real_captcha.lower():
+            flash("Incorrect CAPTCHA. Try again.", "danger")
+            return redirect(url_for('login'))
+        
+        # Checking DB for the user
         db = get_db_connection()
         cursor = db.cursor(dictionary=True)
         cursor.execute("SELECT * FROM noteusers WHERE username=%s", (username,))
@@ -124,7 +238,9 @@ def login():
             session['username'] = user['username']
             flash(f"Welcome {user['username']}!", "success")
             return redirect(url_for('view_all'))
+        
         flash("Invalid credentials", "danger")
+        
     return render_template('login.html')
 
 
