@@ -10,12 +10,13 @@ def generate_captcha_text(length=6):
 
 # Func to generate captcha image
 def generate_captcha_image(text):
-    width, height = 150, 50
+    width, height = 160, 60
     image = Image.new('RGB',(width,height),(255,255,255))
     draw = ImageDraw.Draw(image)
 
     try:
-        font = ImageFont.truetype("arial.ttf",34)
+        # font = ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 360)
+        font = ImageFont.truetype("arial.ttf",30)
     except Exception as e:
         font = ImageFont.load_default()
     
